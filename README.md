@@ -14,23 +14,17 @@
 
 ## Публикация на GitHub Pages
 
-1. Добавьте файлы в репозиторий:
+Сайт опубликован через ветку `gh-pages`.
 
-   ```bash
-   git add .
-   git commit -m "Add Life Capital static dashboard"
-   git push -u origin main
-   ```
+После изменений в `main` обновите публикацию так:
 
-2. Откройте репозиторий на GitHub.
-3. Перейдите в `Settings` → `Pages`.
-4. В блоке `Build and deployment` выберите:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/ (root)`
-5. Сохраните настройки.
+```bash
+git push origin main:gh-pages
+```
 
-Через пару минут сайт будет доступен по адресу вида:
+GitHub Pages берёт статические файлы из корня ветки `gh-pages`.
+
+Сайт доступен по адресу:
 
 ```text
 https://denislevakov.github.io/DL_HUB/
