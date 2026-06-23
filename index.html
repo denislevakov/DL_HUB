@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ru" class="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Life Capital — личный дашборд управления капиталом, свободой и жизненной стратегией.">
+    <title>Life Capital</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&subset=cyrillic,latin&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Навигация Life Capital">
+        <div class="brand">
+          <span class="brand-kicker">Life Capital</span>
+          <strong>Дашборд</strong>
+        </div>
+
+        <nav class="nav-list" aria-label="Разделы">
+          <button class="nav-item active" type="button" data-section="overview" aria-pressed="true">
+            <span class="icon" aria-hidden="true">▦</span>
+            <span>Обзор</span>
+          </button>
+          <button class="nav-item" type="button" data-section="assets" aria-pressed="false">
+            <span class="icon" aria-hidden="true">▤</span>
+            <span>Активы</span>
+          </button>
+          <button class="nav-item" type="button" data-section="targets" aria-pressed="false">
+            <span class="icon" aria-hidden="true">◎</span>
+            <span>Целевые активы</span>
+          </button>
+          <button class="nav-item" type="button" data-section="cashflow" aria-pressed="false">
+            <span class="icon" aria-hidden="true">₽</span>
+            <span>Доход и расходы</span>
+          </button>
+          <button class="nav-item" type="button" data-section="map" aria-pressed="false">
+            <span class="icon" aria-hidden="true">◇</span>
+            <span>Карта жизни</span>
+          </button>
+          <button class="nav-item" type="button" data-section="freedom" aria-pressed="false">
+            <span class="icon" aria-hidden="true">✦</span>
+            <span>Свобода</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <span class="label">Этап</span>
+          <strong>37–40 · Фундамент</strong>
+          <button class="reset-button" type="button" id="resetData">↻ Сбросить данные</button>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <section class="hero">
+          <div>
+            <span class="section-kicker">Life Capital · <span id="currentSectionName">Обзор</span></span>
+            <h1 id="sectionTitle">Где я сейчас</h1>
+            <p id="sectionSubtitle">Снимок капитала, прожиточного минимума и пространства для свободы. Всё пересчитывается автоматически.</p>
+          </div>
+          <article class="stage-card">
+            <span class="label">Текущий этап</span>
+            <strong>37–40 · Создание фундамента</strong>
+            <p>Создание фундамента</p>
+          </article>
+        </section>
+
+        <section class="capital-card" aria-labelledby="capitalTitle">
+          <div class="capital-main">
+            <span class="label">Общий капитал</span>
+            <h2 id="capitalTitle"><span id="capitalRange">12.5–14 млн ₽</span></h2>
+            <p>Средняя оценка: <strong id="capitalAverage">13.3 млн ₽</strong></p>
+            <div class="progress-row">
+              <span>Прогресс к цели свободы</span>
+              <span id="freedomPercent">13%</span>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <span id="progressBar"></span>
+            </div>
+            <small>Цель капитала: <span id="capitalGoal">100 млн ₽</span></small>
+          </div>
+
+          <div class="capital-side">
+            <div>
+              <span class="label">Прожиточный минимум</span>
+              <strong id="monthlyMinimum">325 000 ₽</strong>
+              <small>в месяц</small>
+            </div>
+            <div>
+              <span class="label">Минимальный доход</span>
+              <strong id="minimumIncome">400 000 ₽</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="metric-grid" aria-label="Ключевые метрики">
+          <article class="metric-card">
+            <span class="label">Комфортный доход в месяц</span>
+            <strong>1000к – 2M ₽</strong>
+            <p>целевой коридор</p>
+          </article>
+          <article class="metric-card">
+            <span class="label">Запас прочности</span>
+            <strong class="green" id="safetyRatio">1.2×</strong>
+            <p>при доходе <span id="ratioIncome">400 000 ₽</span></p>
+          </article>
+          <article class="metric-card">
+            <span class="label">Активы идентичности</span>
+            <strong>3 коллекции</strong>
+          </article>
+        </section>
+
+        <section class="section-card">
+          <div class="section-card-head">
+            <div>
+              <span class="label">Сценарии дохода</span>
+              <h2>Свободный остаток после расходов</h2>
+            </div>
+            <a href="#incomeDetails" class="text-link">Детали ↗</a>
+          </div>
+          <div class="scenario-grid" id="scenarioGrid"></div>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="section-card">
+            <span class="section-kicker">Следующий крупный актив</span>
+            <h2>Квартира в Москве</h2>
+            <p>Основное жильё для моей семьи, расположенное в благостном районе Москвы. 100+ квадратных метров красивого свежего пространства с кабинетом для работы над проектами.</p>
+            <div class="asset-line">
+              <span>Горизонт 37–40</span>
+              <span>35 млн ₽</span>
+            </div>
+            <div class="progress-track muted" aria-hidden="true">
+              <span style="width: 18%"></span>
+            </div>
+            <a href="#targets" class="text-link">Все целевые активы ↗</a>
+          </article>
+
+          <article class="section-card">
+            <span class="section-kicker">Главные цели периода 37–40</span>
+            <h2>Создание фундамента</h2>
+            <ul class="goal-list">
+              <li>Создать проекты с доходом 500к–1M ₽/мес</li>
+              <li>Создать источники дохода вне привязки к стране</li>
+              <li>Приобрести новый авто</li>
+              <li>Квартира в Москве</li>
+            </ul>
+            <a href="#map" class="text-link">Карта жизни ↗</a>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <article class="section-card controls-card" id="incomeDetails">
+            <span class="label">Базовый JS</span>
+            <h2>Быстрый пересчёт</h2>
+            <label for="incomeInput">Доход в месяц</label>
+            <input id="incomeInput" type="range" min="300000" max="2500000" step="50000" value="400000">
+            <div class="input-readout">
+              <span>Выбрано</span>
+              <strong id="incomeReadout">400 000 ₽</strong>
+            </div>
+          </article>
+
+          <article class="section-card chart-card">
+            <span class="label">Траектория свободы</span>
+            <canvas id="freedomChart" width="720" height="260" aria-label="График роста капитала" role="img"></canvas>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
