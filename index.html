@@ -11,7 +11,39 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <div class="app-shell">
+    <section class="auth-shell" id="authPanel" aria-labelledby="authTitle">
+      <div class="auth-card">
+        <div>
+          <span class="section-kicker">Life Capital</span>
+          <h1 id="authTitle">Вход в дашборд</h1>
+          <p id="authSubtitle">Войдите, чтобы открыть личную страницу управления капиталом.</p>
+        </div>
+
+        <form class="auth-form" id="authForm" novalidate>
+          <div class="auth-field">
+            <label for="authEmail">Email</label>
+            <input id="authEmail" name="email" type="email" autocomplete="email" required>
+          </div>
+
+          <div class="auth-field">
+            <label for="authPassword">Пароль</label>
+            <input id="authPassword" name="password" type="password" autocomplete="current-password" required>
+          </div>
+
+          <div class="auth-field is-hidden" id="confirmPasswordField">
+            <label for="authPasswordConfirm">Подтверждение пароля</label>
+            <input id="authPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password">
+          </div>
+
+          <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+
+          <button class="auth-submit" id="authSubmit" type="submit">Войти</button>
+          <button class="auth-switch" id="authModeSwitch" type="button">Регистрация</button>
+        </form>
+      </div>
+    </section>
+
+    <div class="app-shell is-hidden" id="dashboardPanel">
       <aside class="sidebar" aria-label="Навигация Life Capital">
         <div class="brand">
           <span class="brand-kicker">Life Capital</span>
@@ -48,6 +80,8 @@
         <div class="sidebar-footer">
           <span class="label">Этап</span>
           <strong>37–40 · Фундамент</strong>
+          <span class="auth-user" id="authUserEmail"></span>
+          <button class="reset-button" type="button" id="signOut">Выйти</button>
           <button class="reset-button" type="button" id="resetData">↻ Сбросить данные</button>
         </div>
       </aside>
@@ -170,6 +204,7 @@
       </main>
     </div>
 
-    <script src="script.js"></script>
+    <script src="env.js"></script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>

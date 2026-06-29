@@ -1,3 +1,29 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
+
+const env = window.LIFE_CAPITAL_ENV || {};
+const authPanel = document.querySelector("#authPanel");
+const dashboardPanel = document.querySelector("#dashboardPanel");
+const authForm = document.querySelector("#authForm");
+const authEmail = document.querySelector("#authEmail");
+const authPassword = document.querySelector("#authPassword");
+const authPasswordConfirm = document.querySelector("#authPasswordConfirm");
+const confirmPasswordField = document.querySelector("#confirmPasswordField");
+const authSubmit = document.querySelector("#authSubmit");
+const authModeSwitch = document.querySelector("#authModeSwitch");
+const authMessage = document.querySelector("#authMessage");
+const authTitle = document.querySelector("#authTitle");
+const authSubtitle = document.querySelector("#authSubtitle");
+const authUserEmail = document.querySelector("#authUserEmail");
+const signOutButton = document.querySelector("#signOut");
+
+const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    persistSession: true
+  }
+});
+
 const initialData = {
   minimum: 325000,
   income: 400000,
@@ -48,6 +74,7 @@ const chart = document.querySelector("#freedomChart");
 const ctx = chart.getContext("2d");
 
 let data = { ...initialData };
+let authMode = "signin";
 
 function formatRub(value, compact = false) {
   if (compact && value >= 1000000) {
@@ -178,6 +205,161 @@ function render() {
   drawChart();
 }
 
+function isEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function setAuthMessage(message = "", type = "") {
+  authMessage.textContent = message;
+  authMessage.classList.toggle("error", type === "error");
+  authMessage.classList.toggle("success", type === "success");
+}
+
+function setAuthLoading(isLoading) {
+  authSubmit.disabled = isLoading;
+  authModeSwitch.disabled = isLoading;
+  authSubmit.textContent = isLoading
+    ? "Проверяю..."
+    : authMode === "signin"
+      ? "Войти"
+      : "Зарегистрироваться";
+}
+
+function updateAuthMode(mode) {
+  authMode = mode;
+  const isSignup = authMode === "signup";
+
+  authTitle.textContent = isSignup ? "Регистрация" : "Вход в дашборд";
+  authSubtitle.textContent = isSignup
+    ? "Создайте доступ к личному дашборду Life Capital."
+    : "Войдите, чтобы открыть личную страницу управления капиталом.";
+  authSubmit.textContent = isSignup ? "Зарегистрироваться" : "Войти";
+  authModeSwitch.textContent = isSignup ? "У меня уже есть аккаунт" : "Регистрация";
+  confirmPasswordField.classList.toggle("is-hidden", !isSignup);
+  authPassword.autocomplete = isSignup ? "new-password" : "current-password";
+  authPasswordConfirm.required = isSignup;
+  setAuthMessage();
+}
+
+function showAuth() {
+  authPanel.classList.remove("is-hidden");
+  dashboardPanel.classList.add("is-hidden");
+  authPassword.value = "";
+  authPasswordConfirm.value = "";
+}
+
+function showDashboard(session) {
+  authPanel.classList.add("is-hidden");
+  dashboardPanel.classList.remove("is-hidden");
+  authUserEmail.textContent = session?.user?.email || "";
+  render();
+}
+
+function friendlyAuthError(error) {
+  const message = error?.message || "Не удалось выполнить действие.";
+
+  if (message.includes("Invalid login credentials")) {
+    return "Неверный email или пароль.";
+  }
+
+  if (message.includes("Email not confirmed")) {
+    return "Email еще не подтвержден. Для учебного проекта лучше отключить email confirmation в Supabase.";
+  }
+
+  if (message.includes("Password should be at least")) {
+    return "Пароль слишком короткий. Используйте минимум 6 символов.";
+  }
+
+  if (message.includes("User already registered")) {
+    return "Аккаунт с таким email уже существует. Попробуйте войти.";
+  }
+
+  return message;
+}
+
+function validateAuthForm() {
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
+  const passwordConfirm = authPasswordConfirm.value;
+
+  if (!isEmail(email)) {
+    return "Введите корректный email.";
+  }
+
+  if (password.length < 6) {
+    return "Пароль должен быть не короче 6 символов.";
+  }
+
+  if (authMode === "signup" && password !== passwordConfirm) {
+    return "Пароль и подтверждение не совпадают.";
+  }
+
+  return "";
+}
+
+async function loadSession() {
+  if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) {
+    setAuthMessage("Не найден Supabase-конфиг для приложения.", "error");
+    showAuth();
+    return;
+  }
+
+  const { data: sessionData } = await supabase.auth.getSession();
+
+  if (sessionData.session) {
+    showDashboard(sessionData.session);
+  } else {
+    showAuth();
+  }
+}
+
+async function handleAuthSubmit(event) {
+  event.preventDefault();
+  setAuthMessage();
+
+  const validationError = validateAuthForm();
+  if (validationError) {
+    setAuthMessage(validationError, "error");
+    return;
+  }
+
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
+  setAuthLoading(true);
+
+  try {
+    if (authMode === "signup") {
+      const { data: signupData, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+
+      if (signupData.session) {
+        showDashboard(signupData.session);
+      } else {
+        updateAuthMode("signin");
+        authEmail.value = email;
+        setAuthMessage("Аккаунт создан. Если вход не пройдет, отключите email confirmation в Supabase.", "success");
+      }
+
+      return;
+    }
+
+    const { data: signinData, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    showDashboard(signinData.session);
+  } catch (error) {
+    setAuthMessage(friendlyAuthError(error), "error");
+  } finally {
+    setAuthLoading(false);
+  }
+}
+
+async function handleSignOut() {
+  signOutButton.disabled = true;
+  await supabase.auth.signOut();
+  signOutButton.disabled = false;
+  showAuth();
+}
+
 navButtons.forEach((button) => {
   button.addEventListener("click", () => updateSection(button.dataset.section));
 });
@@ -195,5 +377,13 @@ resetButton.addEventListener("click", () => {
 });
 
 window.addEventListener("resize", drawChart);
+authForm.addEventListener("submit", handleAuthSubmit);
+authModeSwitch.addEventListener("click", () => updateAuthMode(authMode === "signin" ? "signup" : "signin"));
+signOutButton.addEventListener("click", handleSignOut);
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session) showDashboard(session);
+  else showAuth();
+});
 
-render();
+updateAuthMode("signin");
+loadSession();
